@@ -79,17 +79,17 @@ public class myMenu : MonoBehaviour {
 					}
 					GUI.Label(new Rect(10,35,100,25),"PlayerTurn"+this.turn);
 					if(GUI.Button (new Rect (100,100,100,25) , "MOVE Foward")){
-						MoveMyBoat(this.myPlayer,Vector3.forward);
+						networkView.RPC("MoveMyBoat",RPCMode.Server, this.myPlayer,Vector3.forward);
 						
 					}
 					if (GUI.Button(new Rect(0,100,100,25), "Left")){
-						MoveMyBoat(this.myPlayer,Vector3.left);
+						networkView.RPC("MoveMyBoat",RPCMode.Server,this.myPlayer,Vector3.left);
 					}
 					if (GUI.Button(new Rect(200,100,100,25), "Right")){
-						MoveMyBoat(this.myPlayer,Vector3.right);
+						networkView.RPC("MoveMyBoat",RPCMode.Server,this.myPlayer,Vector3.right);
 					}
 					if(GUI.Button (new Rect (100,125,100,25) , "MOVE Backwards")){
-						MoveMyBoat(this.myPlayer,Vector3.back);
+						networkView.RPC("MoveMyBoat",RPCMode.Server,this.myPlayer,Vector3.back);
 					}
 				}
 				
@@ -127,7 +127,14 @@ public class myMenu : MonoBehaviour {
 			//this.GameStart= !this.GameStart;
 		}
 	}
-	
+	[RPC]
+	void AskMovement(int _MyPLayerNumber , Vector3 _position)
+	{
+		if (Network.isServer) {
+			networkView.RPC("MoveMyBoat",RPCMode.All,_MyPLayerNumber, _position);
+				}
+	}
+	[RPC]
 	void MoveMyBoat(int _MyPLayerNumber , Vector3 _position)
 	{
 		if (_MyPLayerNumber == 1) {
