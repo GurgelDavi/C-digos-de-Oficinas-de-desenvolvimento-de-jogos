@@ -68,7 +68,7 @@ public class GameCam : MonoBehaviour {
 					if (GUI.Button(new Rect(100,75,100,25),"Boat1"))//ToDo Wait for player2 until instruction	
 					{
 						networkView.RPC("AskInstantiate",RPCMode.All);
-						Debug.Log("Asking turn");
+						//Debug.Log("Asking turn");
 						networkView.RPC("AskTurn",RPCMode.All);
 						//this.GameStart= !this.GameStart;
 						networkView.RPC("AskReady",RPCMode.All,this.myPlayer);
@@ -171,7 +171,6 @@ public class GameCam : MonoBehaviour {
 	[RPC]
 	void Turn ()
 	{
-		Debug.Log ("Turno: "+this.turn);
 		if ((this.turn == 0)) {
 			this.turn = 1;
 			Player1.displayGUI=true;
@@ -181,7 +180,6 @@ public class GameCam : MonoBehaviour {
 			Player1.displayGUI=false;
 			Player2.displayGUI=true;
 			this.target = Player2.myBoat.transform;
-			Debug.Log("Turno PLayer 2");
 			}
 		}
 	}
@@ -201,26 +199,36 @@ public class GameCam : MonoBehaviour {
 			this.Player1.myBoat.gameObject.transform.position += _position;
 			this.Player1.turnMoves--;
 			if (Player1.turnMoves<=0){
-				endTurn(_MyPLayerNumber);
+				networkView.RPC( "endTurn",RPCMode.All ,_MyPLayerNumber);
 			}
 		}
 		if (_MyPLayerNumber == 2) {
 			this.Player2.myBoat.gameObject.transform.position += _position;
 			this.Player2.turnMoves--;
 			if (Player2.turnMoves<=0){
-				endTurn(_MyPLayerNumber);
+				networkView.RPC( "endTurn",RPCMode.All ,_MyPLayerNumber);
 			}
 		}
 	}
+	[RPC]
 	void endTurn(int _MyPLayerNumber)
 	{
 		if (_MyPLayerNumber == 1) {
+			//Debug.Log("endTurn");
 			Player1.displayGUI=false;
 			Player1.turnMoves = 5;
+			if (Player2!=null){
+				this.target = Player2.myBoat.transform;
+				this.Player2.displayGUI=true;
+			}else {
+				Player1.displayGUI=true;
+			}
 		}
-		if (_MyPLayerNumber == 2) {
+		if (_MyPLayerNumber == 2 ) {
 			Player2.displayGUI=false;
 			Player2.turnMoves= 5;
+			this.target = Player1.myBoat.transform;
+			this.Player1.displayGUI=true;
 		}
 	}
 
