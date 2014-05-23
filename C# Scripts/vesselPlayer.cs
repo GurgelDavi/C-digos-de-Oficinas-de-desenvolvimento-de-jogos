@@ -5,16 +5,17 @@ public class vesselPlayer : MonoBehaviour {
 	Vector3 screenHealthBarDisplay = new Vector3();
 	public GameObject myBoat ;
 	public GameObject enemy =null ;
-	bool enemyOnRange = false;
+	public bool enemyOnRange = false;
 	public bool cityOnRange;
 	public bool displayGUI = false;
 	public bool canDig=false;
-	float range = 5 ;
-	int firePower = 1;
-	int defense = 1 ;
+	public float range = 5 ;
+	public int firePower = 15;
+	public int defense = 5 ;
 	//int movesPerTurn = 1;
-	int Health = 5;
-	int resources = 10;
+	public int maxHealth = 100;
+	public int currentHealth = 100;
+	public int resources = 10;
 	public int turnMoves = 5;
 	// Use this for initialization
 	void Start () {

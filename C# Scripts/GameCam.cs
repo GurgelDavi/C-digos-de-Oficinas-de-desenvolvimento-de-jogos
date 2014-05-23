@@ -83,6 +83,13 @@ public class GameCam : MonoBehaviour {
 				
 			}
 			if (Player1!=null || Player2!=null){
+				if (Player2!=null){
+					Vector2	healthBarPositionP1 = Camera.main.WorldToScreenPoint (Player1.myBoat.transform.position);
+					Vector2	healthBarPositionP2 = Camera.main.WorldToScreenPoint (Player2.myBoat.transform.position);
+					GUI.Box(new Rect(healthBarPositionP1.x, healthBarPositionP1.y, 60, 20), Player1.currentHealth + "/" + Player1.maxHealth);
+					GUI.Box(new Rect(healthBarPositionP2.x, healthBarPositionP2.y, 60, 20), Player2.currentHealth + "/" + Player2.maxHealth);
+
+				}
 				if (((myPlayer==1)&&(Player1.displayGUI))||((myPlayer==2)&&(Player2.displayGUI)))
 				{
 					if (Player2!=null){
@@ -102,7 +109,13 @@ public class GameCam : MonoBehaviour {
 					}
 					if(GUI.Button (new Rect (100,125,100,25) , "MOVE Backwards")){
 						networkView.RPC("MoveMyBoat",RPCMode.All,this.myPlayer,Vector3.back);
+					
 					}
+					if (Player1.enemyOnRange){
+						if (GUI.Button(new Rect(300,100,100,25), "Attack!"))
+							;
+					}
+
 				}
 
 
