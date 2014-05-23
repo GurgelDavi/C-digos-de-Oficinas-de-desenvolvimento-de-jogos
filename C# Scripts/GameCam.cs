@@ -111,9 +111,16 @@ public class GameCam : MonoBehaviour {
 						networkView.RPC("MoveMyBoat",RPCMode.All,this.myPlayer,Vector3.back);
 					
 					}
+					if(GUI.Button (new Rect (100,250,100,25) , "EndTurn")){
+						networkView.RPC( "askEndTurn",RPCMode.All ,this.myPlayer);
+						
+					}
 					if (Player1.enemyOnRange){
-						if (GUI.Button(new Rect(300,100,100,25), "Attack!"))
-							;
+						if (GUI.Button(new Rect(300,100,100,25), "Attack!")){
+							networkView.RPC( "askEndTurn",RPCMode.All ,this.myPlayer);
+
+						}
+
 					}
 
 				}
@@ -243,6 +250,17 @@ public class GameCam : MonoBehaviour {
 			this.target = Player1.myBoat.transform;
 			this.Player1.displayGUI=true;
 		}
+	}
+	[RPC]
+	void askEndTurn (int _MyPlayerNumber)
+	{
+		if (Network.isServer)
+		networkView.RPC( "endTurn",RPCMode.All ,_MyPlayerNumber);
+	}
+	[RPC]
+	void askAttack(int _MyPlayerNumber)
+	{
+
 	}
 
 	vesselPlayer Player1 ; 

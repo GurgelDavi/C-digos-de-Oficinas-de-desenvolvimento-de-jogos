@@ -28,6 +28,7 @@ public class vesselPlayer : MonoBehaviour {
 			Debug.Log (distance);
 			if (distance <= this.range) {
 				this.enemyOnRange = true;
+				//Debug.Log("Onrange"+enemyOnRange);
 			} else
 				this.enemyOnRange = false;
 		}
@@ -36,12 +37,22 @@ public class vesselPlayer : MonoBehaviour {
 
 	void OnTriggerEnter (Collider col)
 	{	
+		Debug.Log("Colided!");
 		if (col.gameObject.tag == "city" ) 
 		{
 			Debug.Log("City on range");
 			cityOnRange=true;
 		}
 	}
+//	void OnTriggerStay(Collider col)
+//	{	
+//		if (col.gameObject.tag == "city" ) 
+//		{
+//			Debug.Log("TriggerStayColided!");
+//			Debug.Log("City on range");
+//			cityOnRange=true;
+//		}
+//	}
 	void OnTriggerExit (Collider col)
 	{	
 		if (col.gameObject.tag == "city" ) 
