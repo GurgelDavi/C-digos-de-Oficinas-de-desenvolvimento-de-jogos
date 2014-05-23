@@ -68,6 +68,7 @@ public class GameCam : MonoBehaviour {
 					if (GUI.Button(new Rect(100,75,100,25),"Boat1"))//ToDo Wait for player2 until instruction	
 					{
 						networkView.RPC("AskInstantiate",RPCMode.All);
+						Debug.Log("Asking turn");
 						networkView.RPC("AskTurn",RPCMode.All);
 						//this.GameStart= !this.GameStart;
 						networkView.RPC("AskReady",RPCMode.All,this.myPlayer);
@@ -82,7 +83,7 @@ public class GameCam : MonoBehaviour {
 				
 			}
 			if (Player1!=null || Player2!=null){
-				if (((myPlayer==1)&&(Player1.displayGUI))||((myPlayer==2)&&(Player1.displayGUI)))
+				if (((myPlayer==1)&&(Player1.displayGUI))||((myPlayer==2)&&(Player2.displayGUI)))
 				{
 					if (Player2!=null){
 					Player1.enemy=Player2.myBoat;
@@ -103,6 +104,8 @@ public class GameCam : MonoBehaviour {
 						networkView.RPC("MoveMyBoat",RPCMode.All,this.myPlayer,Vector3.back);
 					}
 				}
+
+
 				
 			}
 			
@@ -141,6 +144,7 @@ public class GameCam : MonoBehaviour {
 	void InstantiateBoat()
 	{
 		{
+			this.GameStart=true;
 			if (playersReady[0] ==1){
 				//Player1.myBoat = (GameObject)Instantiate(Pirate1 , startlocation1.position ,transform.rotation);
 				tempPirate = (GameObject)Instantiate(Pirate1 , startlocation1.position ,transform.rotation);
@@ -172,12 +176,13 @@ public class GameCam : MonoBehaviour {
 			this.turn = 1;
 			Player1.displayGUI=true;
 			this.target = Player1.myBoat.transform;
-		} else{
+		} else{if (this.numPlayers>1){
 			this.turn=0;
 			Player1.displayGUI=false;
 			Player2.displayGUI=true;
 			this.target = Player2.myBoat.transform;
 			Debug.Log("Turno PLayer 2");
+			}
 		}
 	}
 
@@ -239,6 +244,7 @@ public class GameCam : MonoBehaviour {
 								networkView.RPC ("UpdatePlayers", RPCMode.All, (Network.connections.Length + 1));
 						}
 				}
+
 //				if (Network.isServer && ((this.playersReady [0] != 0) && this.playersReady [1] != 0)) {
 //						networkView.RPC ("AskInstantiate", RPCMode.All, this.playersReady [0]);
 //						networkView.RPC ("AskInstantiate", RPCMode.All, this.playersReady [1]);
