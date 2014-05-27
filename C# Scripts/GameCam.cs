@@ -13,6 +13,7 @@ public class GameCam : MonoBehaviour {
 	bool GameStart=false;
 	int[] playersReady = new int[2];
 	int turn =0;
+	int maxTurns = 16;
 
 
 
@@ -28,7 +29,7 @@ public class GameCam : MonoBehaviour {
 			}
 			if(GUI.Button (new Rect (100,125,100,25) , "Host a Game"))
 			{
-				Network.InitializeServer(10,Port,true);
+				Network.InitializeServer(3,Port,true);
 				this.myPlayer=1;
 				this.gotPlayerNum=true;
 				
@@ -97,18 +98,23 @@ public class GameCam : MonoBehaviour {
 					Player2.enemy=Player1.myBoat;
 					}
 					GUI.Label(new Rect(10,35,100,25),"PlayerTurn"+this.turn);
-					if(GUI.Button (new Rect (100,100,100,25) , "MOVE Foward")){
+					if(GUI.Button (new Rect (100,100,100,25) , "MOVE North")){
 						networkView.RPC("MoveMyBoat",RPCMode.All, this.myPlayer,Vector3.forward);
-						
+						networkView.RPC("RotateMyBoat",RPCMode.All,this.myPlayer,new Vector3(0,0,0));
+
+
 					}
-					if (GUI.Button(new Rect(0,100,100,25), "Left")){
+					if (GUI.Button(new Rect(0,100,100,25), "West")){
 						networkView.RPC("MoveMyBoat",RPCMode.All,this.myPlayer,Vector3.left);
+						networkView.RPC("RotateMyBoat",RPCMode.All,this.myPlayer,new Vector3(0,-90,0));
 					}
-					if (GUI.Button(new Rect(200,100,100,25), "Right")){
+					if (GUI.Button(new Rect(200,100,100,25), "East")){
 						networkView.RPC("MoveMyBoat",RPCMode.All,this.myPlayer,Vector3.right);
+						networkView.RPC("RotateMyBoat",RPCMode.All,this.myPlayer,new Vector3(0,90,0));
 					}
-					if(GUI.Button (new Rect (100,125,100,25) , "MOVE Backwards")){
+					if(GUI.Button (new Rect (100,125,100,25) , "MOVE South")){
 						networkView.RPC("MoveMyBoat",RPCMode.All,this.myPlayer,Vector3.back);
+						networkView.RPC("RotateMyBoat",RPCMode.All,this.myPlayer,new Vector3(0,180,0));
 					
 					}
 					if(GUI.Button (new Rect (100,250,100,25) , "EndTurn")){
@@ -239,12 +245,15 @@ public class GameCam : MonoBehaviour {
 	void MoveMyBoat(int _MyPLayerNumber , Vector3 _position)
 	{
 		if (_MyPLayerNumber == 1) {
-			this.Player1.myBoat.gameObject.transform.position += _position;
+
+			this.Player1.gameObject.transform.localPosition +=_position;
 			this.Player1.turnMoves--;
 			if (Player1.turnMoves<=0 || Player1.currentHealth==0){
 				networkView.RPC( "endTurn",RPCMode.All ,_MyPLayerNumber);
+
 			}
 		}
+		if (this.Player2!=null)
 		if (_MyPLayerNumber == 2 || Player2.currentHealth==0) {
 			this.Player2.myBoat.gameObject.transform.position += _position;
 			this.Player2.turnMoves--;
@@ -252,6 +261,16 @@ public class GameCam : MonoBehaviour {
 			if (Player2.turnMoves<=0){
 				networkView.RPC( "endTurn",RPCMode.All ,_MyPLayerNumber);
 			}
+		}
+	}
+	[RPC]
+	void RotateMyBoat(int _MyPLayerNumber , Vector3 _position)
+	{
+		if (_MyPLayerNumber == 1) {
+								Player1.transform.localEulerAngles = (_position);
+				}
+		if (_MyPLayerNumber == 2) {
+			Player2.transform.localEulerAngles = ( _position);
 		}
 	}
 	[RPC]
@@ -274,6 +293,11 @@ public class GameCam : MonoBehaviour {
 			this.target = Player1.myBoat.transform;
 			this.Player1.displayGUI=true;
 		}
+		if (this.turn >= this.maxTurns) {
+			Debug.Log("EndGame");
+			Application.LoadLevel ("Apresentacao");
+				}
+		this.turn++;
 	}
 	[RPC]
 	void askEndTurn (int _MyPlayerNumber)
