@@ -115,9 +115,32 @@ public class GameCam : MonoBehaviour {
 						networkView.RPC( "askEndTurn",RPCMode.All ,this.myPlayer);
 						
 					}
+					if (Player2!=null){
+						if ((Player2.cityOnRange && myPlayer==2)||((Player1.cityOnRange&&myPlayer==1)))
+						{
+							if (GUI.Button(new Rect(400,100,100,25), "BuyCards"))
+								networkView.RPC("MoveMyBoat",RPCMode.All,this.myPlayer,Vector3.zero);
+							if (GUI.Button(new Rect(400,125,100,25), "Sell"))
+								networkView.RPC("MoveMyBoat",RPCMode.All,this.myPlayer,Vector3.zero);
+							if (GUI.Button(new Rect(400,150,100,25), "ApplyCard"))
+								networkView.RPC("MoveMyBoat",RPCMode.All,this.myPlayer,Vector3.zero);
+							if (GUI.Button(new Rect(400,175,100,25), "FindTolken"))
+								networkView.RPC("MoveMyBoat",RPCMode.All,this.myPlayer,Vector3.zero);	
+						}} else if (((Player1.cityOnRange&&myPlayer==1)))
+					{
+						if (GUI.Button(new Rect(400,100,100,25), "BuyCards"))
+							networkView.RPC("MoveMyBoat",RPCMode.All,this.myPlayer,Vector3.zero);
+						if (GUI.Button(new Rect(400,125,100,25), "Sell"))
+							networkView.RPC("MoveMyBoat",RPCMode.All,this.myPlayer,Vector3.zero);
+						if (GUI.Button(new Rect(400,150,100,25), "ApplyCard"))
+							networkView.RPC("MoveMyBoat",RPCMode.All,this.myPlayer,Vector3.zero);
+						if (GUI.Button(new Rect(400,175,100,25), "FindTolken"))
+							networkView.RPC("MoveMyBoat",RPCMode.All,this.myPlayer,Vector3.zero);	
+					}
+
 					if (Player1.enemyOnRange){
 						if (GUI.Button(new Rect(300,100,100,25), "Attack!")){
-							networkView.RPC( "askEndTurn",RPCMode.All ,this.myPlayer);
+							networkView.RPC( "askAttack",RPCMode.All ,this.myPlayer);
 
 						}
 
@@ -218,13 +241,14 @@ public class GameCam : MonoBehaviour {
 		if (_MyPLayerNumber == 1) {
 			this.Player1.myBoat.gameObject.transform.position += _position;
 			this.Player1.turnMoves--;
-			if (Player1.turnMoves<=0){
+			if (Player1.turnMoves<=0 || Player1.currentHealth==0){
 				networkView.RPC( "endTurn",RPCMode.All ,_MyPLayerNumber);
 			}
 		}
-		if (_MyPLayerNumber == 2) {
+		if (_MyPLayerNumber == 2 || Player2.currentHealth==0) {
 			this.Player2.myBoat.gameObject.transform.position += _position;
 			this.Player2.turnMoves--;
+
 			if (Player2.turnMoves<=0){
 				networkView.RPC( "endTurn",RPCMode.All ,_MyPLayerNumber);
 			}
@@ -260,6 +284,17 @@ public class GameCam : MonoBehaviour {
 	[RPC]
 	void askAttack(int _MyPlayerNumber)
 	{
+		if (Network.isServer)
+			networkView.RPC( "Attack",RPCMode.All ,_MyPlayerNumber);
+	}
+	[RPC]
+	void Attack(int _MyPlayerNumber)
+	{
+		if (_MyPlayerNumber == 1)
+						Player2.currentHealth-= (Player1.firePower-Player2.defense);
+		if (_MyPlayerNumber == 2)
+						Player1.currentHealth-= (Player2.firePower-Player1.defense);
+		networkView.RPC( "endTurn",RPCMode.All ,_MyPlayerNumber);
 
 	}
 
