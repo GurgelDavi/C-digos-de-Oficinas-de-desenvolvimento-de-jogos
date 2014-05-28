@@ -19,6 +19,9 @@ public class vesselPlayer : MonoBehaviour {
 	public int turnMoves = 4;
 	public int maxTurnMoves = 4;
 	public GameObject closecity;
+	public CityScript city;
+	public bool gotUpgrade = false;
+	public bool gotKey=false;
 	// Use this for initialization
 	void Start () {
 	
@@ -43,8 +46,15 @@ public class vesselPlayer : MonoBehaviour {
 		if (col.gameObject.tag == "city" ) 
 		{
 			closecity=col.gameObject;
+			city = closecity.GetComponent<CityScript>();
 			Debug.Log("City on range");
 			cityOnRange=true;
+		}
+		if (col.gameObject.tag == "digSpot" ) 
+		{
+			this.canDig=true;
+
+			Debug.Log("City on range");
 		}
 	}
 //	void OnTriggerStay(Collider col)
@@ -62,6 +72,10 @@ public class vesselPlayer : MonoBehaviour {
 		{
 			Debug.Log("City on range");
 			cityOnRange=false;
+		}
+		if (col.gameObject.tag == "digSpot" ) 
+		{
+			this.canDig=false;
 		}
 	}
 }

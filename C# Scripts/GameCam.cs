@@ -122,6 +122,22 @@ public class GameCam : MonoBehaviour {
 						networkView.RPC( "askEndTurn",RPCMode.All ,this.myPlayer);
 						
 					}
+					if (Player1.canDig==true&& Player1.gotKey && myPlayer==1)
+					{
+						if (GUI.Button(new Rect(500,100,100,25), "DIG!")){
+							this.turn=maxTurns;
+							networkView.RPC( "askEndTurn",RPCMode.All ,this.myPlayer);
+						}
+					}
+					if (Player2!=null)
+						if (Player2.canDig==true&& Player2.gotKey && myPlayer==2)
+						{
+							if (GUI.Button(new Rect(500,100,100,25), "DIG!")){
+								this.turn=maxTurns;
+								networkView.RPC( "askEndTurn",RPCMode.All ,this.myPlayer);
+						}
+						}
+
 					if (Player2!=null){
 						if ((Player2.cityOnRange && myPlayer==2)||((Player1.cityOnRange&&myPlayer==1)))
 						{
@@ -129,8 +145,9 @@ public class GameCam : MonoBehaviour {
 								networkView.RPC("MoveMyBoat",RPCMode.All,this.myPlayer,Vector3.zero);
 							if (GUI.Button(new Rect(400,225,100,50), "ApplyCard 1\n Atk+2"))
 								networkView.RPC("MoveMyBoat",RPCMode.All,this.myPlayer,Vector3.zero);
-							if (GUI.Button(new Rect(350,275,100,50), "FindTolken"))
-								networkView.RPC("askTolken",RPCMode.All,this.myPlayer,Vector3.zero);
+							if (!Player1.gotKey)
+								if (GUI.Button(new Rect(350,275,100,50), "FindTolken"))
+									networkView.RPC("askTolken",RPCMode.All,this.myPlayer);
 							
 							if (GUI.Button(new Rect(350,325,100,50), "Repair"))
 								networkView.RPC("askRepair",RPCMode.All,this.myPlayer);
@@ -142,8 +159,9 @@ public class GameCam : MonoBehaviour {
 							networkView.RPC("MoveMyBoat",RPCMode.All,this.myPlayer,Vector3.zero);
 						if (GUI.Button(new Rect(400,225,100,50), "ApplyCard 1\n Atk+2"))
 							networkView.RPC("MoveMyBoat",RPCMode.All,this.myPlayer,Vector3.zero);
-						if (GUI.Button(new Rect(350,275,100,50), "FindTolken"))
-							networkView.RPC("askTolken",RPCMode.All,this.myPlayer,Vector3.zero);
+						if (!Player1.gotKey)
+							if (GUI.Button(new Rect(350,275,100,50), "FindTolken"))
+								networkView.RPC("askTolken",RPCMode.All,this.myPlayer);
 
 						if (GUI.Button(new Rect(350,325,100,50), "Repair"))
 							networkView.RPC("askRepair",RPCMode.All,this.myPlayer);
@@ -319,7 +337,7 @@ public class GameCam : MonoBehaviour {
 	[RPC]
 	void Attack(int _MyPlayerNumber)
 	{
-		if (_MyPlayerNumber == 1)
+		if (_MyPlayerNumber == 1 && (Player2.currentHealth!=0))
 				if (Player2.firePower >= Player1.defense) {
 						Player2.currentHealth--;
 				}
@@ -327,7 +345,7 @@ public class GameCam : MonoBehaviour {
 						Player2.currentHealth -= (Player1.firePower - Player2.defense);
 				}
 		if (_MyPlayerNumber == 2)
-				if (Player1.firePower >= Player2.defense) {
+		if (Player1.firePower >= Player2.defense && (Player1.currentHealth!=0)) {
 						Player1.currentHealth--;
 				}
 				else {
@@ -356,6 +374,25 @@ public class GameCam : MonoBehaviour {
 		networkView.RPC( "endTurn",RPCMode.All ,_MyPlayerNumber);
 	
 	}
+	[RPC]
+	void askTolken (int _MyPlayerNumber){
+		if (Network.isServer) {
+			networkView.RPC("GetTolken",RPCMode.All, _MyPlayerNumber);
+		}
+	}
+	[RPC]
+	void GetTolken(int _MyPlayerNumber){
+		if (_MyPlayerNumber == 1){
+			Player1.gotKey=Player1.city.hasKey;
+			Player1.city.askCityKeyLoss();
+		}
+		
+		if (_MyPlayerNumber == 2){
+			Player2.gotKey=Player1.city.hasKey;
+			Player2.city.askCityKeyLoss();
+		}
+		networkView.RPC( "endTurn",RPCMode.All ,_MyPlayerNumber);
+		}
 
 	vesselPlayer Player1 ; 
 	vesselPlayer Player2 ;
@@ -377,8 +414,15 @@ public class GameCam : MonoBehaviour {
 								networkView.RPC ("UpdatePlayers", RPCMode.All, (Network.connections.Length + 1));
 						}
 				}
-				if (Player1.canDig == true)
-						digSpot.gameObject.SetActive(true);
+		if (Player1 != null) {	
+						if (Player1.gotKey == true && myPlayer==1)
+								digSpot.gameObject.SetActive (true);
+				}
+		if (Player2!=null){
+			if (Player2.gotKey == true && myPlayer ==2)
+				digSpot.gameObject.SetActive(true);
+
+			}
 
 //				if (Network.isServer && ((this.playersReady [0] != 0) && this.playersReady [1] != 0)) {
 //						networkView.RPC ("AskInstantiate", RPCMode.All, this.playersReady [0]);
