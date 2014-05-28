@@ -10,13 +10,15 @@ public class vesselPlayer : MonoBehaviour {
 	public bool displayGUI = false;
 	public bool canDig=false;
 	public float range = 5 ;
-	public int firePower = 15;
-	public int defense = 5 ;
+	public int firePower = 3;
+	public int defense = 2	 ;
 	//int movesPerTurn = 1;
-	public int maxHealth = 100;
-	public int currentHealth = 100;
+	public int maxHealth = 3;
+	public int currentHealth = 3;
 	public int resources = 10;
-	public int turnMoves = 5;
+	public int turnMoves = 4;
+	public int maxTurnMoves = 4;
+	public GameObject closecity;
 	// Use this for initialization
 	void Start () {
 	
@@ -40,6 +42,7 @@ public class vesselPlayer : MonoBehaviour {
 		Debug.Log("Colided!");
 		if (col.gameObject.tag == "city" ) 
 		{
+			closecity=col.gameObject;
 			Debug.Log("City on range");
 			cityOnRange=true;
 		}
