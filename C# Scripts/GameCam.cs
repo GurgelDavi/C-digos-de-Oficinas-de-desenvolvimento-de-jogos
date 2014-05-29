@@ -13,7 +13,7 @@ public class GameCam : MonoBehaviour {
 	bool GameStart=false;
 	int[] playersReady = new int[2];
 	int turn =0;
-	int maxTurns = 16;
+	int maxTurns = 32;
 	GameObject digSpot;
 
 
@@ -136,23 +136,25 @@ public class GameCam : MonoBehaviour {
 								this.turn=maxTurns;
 								networkView.RPC( "askEndTurn",RPCMode.All ,this.myPlayer);
 						}
+
 						}
 
 					if (Player2!=null){
-						if ((Player2.cityOnRange && myPlayer==2)||((Player1.cityOnRange&&myPlayer==1)))
+						if ((Player2.cityOnRange && myPlayer==2))//||((Player1.cityOnRange&&myPlayer==1)))
 						{
+							Debug.Log("Player 2");
 							if (GUI.Button(new Rect(300,225,100,50), "ApplyCard 2 \n Def+2"))
 								networkView.RPC("MoveMyBoat",RPCMode.All,this.myPlayer,Vector3.zero);
 							if (GUI.Button(new Rect(400,225,100,50), "ApplyCard 1\n Atk+2"))
 								networkView.RPC("MoveMyBoat",RPCMode.All,this.myPlayer,Vector3.zero);
-							if (!Player2.gotKey)
+							if (!Player2.gotKey && myPlayer==2)
 								if (GUI.Button(new Rect(350,275,100,50), "FindTolken")){
 									networkView.RPC("askTolken",RPCMode.All,this.myPlayer,Player2.city.hasKey);	
 							}
 							
 							if (GUI.Button(new Rect(350,325,100,50), "Repair"))
 								networkView.RPC("askRepair",RPCMode.All,this.myPlayer);
-						}} else if (((Player1.cityOnRange&&myPlayer==1)))
+						}} 	if (((Player1.cityOnRange&&myPlayer==1)))//For Single player
 					{
 						//if (GUI.Button(new Rect(400,100,100,25), "BuyCards"))
 						//	networkView.RPC("MoveMyBoat",RPCMode.All,this.myPlayer,Vector3.zero);
@@ -172,6 +174,16 @@ public class GameCam : MonoBehaviour {
 						if (GUI.Button(new Rect(300,100,100,25), "Attack!")){
 							networkView.RPC( "askAttack",RPCMode.All ,this.myPlayer);
 
+						}
+						if (Player2.currentHealth==0 && myPlayer==1)
+						{
+							if (GUI.Button(new Rect(300,125,100,25), "Pillage"))
+								networkView.RPC( "askPillage",RPCMode.All ,this.myPlayer);
+						}
+						if (Player1.currentHealth==0 && myPlayer==2)
+						{
+							if (GUI.Button(new Rect(300,125,100,25), "Pillage"))
+								networkView.RPC( "askPillage",RPCMode.All ,this.myPlayer);
 						}
 
 					}
@@ -278,11 +290,11 @@ public class GameCam : MonoBehaviour {
 			}
 		}
 		if (this.Player2!=null)
-		if (_MyPLayerNumber == 2 || Player2.currentHealth==0) {
+		if (_MyPLayerNumber == 2 ) {
 			this.Player2.myBoat.gameObject.transform.position += _position;
 			this.Player2.turnMoves--;
 
-			if (Player2.turnMoves<=0){
+			if (Player2.turnMoves<=0 || Player2.currentHealth==0){
 				networkView.RPC( "endTurn",RPCMode.All ,_MyPLayerNumber);
 			}
 		}
@@ -318,6 +330,7 @@ public class GameCam : MonoBehaviour {
 			this.Player1.displayGUI=true;
 		}
 		if (this.turn >= this.maxTurns) {
+			Network.Disconnect();
 			Debug.Log("EndGame");
 			Application.LoadLevel ("Apresentacao");
 				}
@@ -395,6 +408,30 @@ public class GameCam : MonoBehaviour {
 		}
 		networkView.RPC( "endTurn",RPCMode.All ,_MyPlayerNumber);
 		}
+	[RPC]
+	void askPillage (int _MyPlayerNumber)
+	{
+		if (Network.isServer) {
+			networkView.RPC( "Pillage",RPCMode.All ,_MyPlayerNumber);
+				}
+	}
+	[RPC]
+	void Pillage (int _MyPlayerNumber)
+	{
+		if (_MyPlayerNumber == 1) {
+			if (Player2.gotKey)	{
+				Player2.gotKey = false;
+				Player1.gotKey = true;
+			}
+		}
+		if (_MyPlayerNumber == 2) {
+			if (Player1.gotKey)	{
+			Player1.gotKey = false;
+			Player2.gotKey = true;
+			}
+		}
+
+	}
 
 	vesselPlayer Player1 ; 
 	vesselPlayer Player2 ;
