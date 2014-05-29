@@ -54,7 +54,7 @@ public class vesselPlayer : MonoBehaviour {
 		{
 			this.canDig=true;
 
-			Debug.Log("City on range");
+			Debug.Log("GigspotOnRange");
 		}
 	}
 //	void OnTriggerStay(Collider col)
@@ -72,6 +72,7 @@ public class vesselPlayer : MonoBehaviour {
 		{
 			Debug.Log("City on range");
 			cityOnRange=false;
+			city = null;
 		}
 		if (col.gameObject.tag == "digSpot" ) 
 		{

@@ -122,7 +122,7 @@ public class GameCam : MonoBehaviour {
 						networkView.RPC( "askEndTurn",RPCMode.All ,this.myPlayer);
 						
 					}
-					if (Player1.canDig==true&& Player1.gotKey && myPlayer==1)
+					if (Player1.canDig==true && Player1.gotKey && myPlayer==1)
 					{
 						if (GUI.Button(new Rect(500,100,100,25), "DIG!")){
 							this.turn=maxTurns;
@@ -130,7 +130,7 @@ public class GameCam : MonoBehaviour {
 						}
 					}
 					if (Player2!=null)
-						if (Player2.canDig==true&& Player2.gotKey && myPlayer==2)
+						if (Player2.canDig==true && Player2.gotKey && myPlayer==2)
 						{
 							if (GUI.Button(new Rect(500,100,100,25), "DIG!")){
 								this.turn=maxTurns;
@@ -145,9 +145,10 @@ public class GameCam : MonoBehaviour {
 								networkView.RPC("MoveMyBoat",RPCMode.All,this.myPlayer,Vector3.zero);
 							if (GUI.Button(new Rect(400,225,100,50), "ApplyCard 1\n Atk+2"))
 								networkView.RPC("MoveMyBoat",RPCMode.All,this.myPlayer,Vector3.zero);
-							if (!Player1.gotKey)
-								if (GUI.Button(new Rect(350,275,100,50), "FindTolken"))
-									networkView.RPC("askTolken",RPCMode.All,this.myPlayer);
+							if (!Player2.gotKey)
+								if (GUI.Button(new Rect(350,275,100,50), "FindTolken")){
+									networkView.RPC("askTolken",RPCMode.All,this.myPlayer,Player2.city.hasKey);	
+							}
 							
 							if (GUI.Button(new Rect(350,325,100,50), "Repair"))
 								networkView.RPC("askRepair",RPCMode.All,this.myPlayer);
@@ -161,7 +162,7 @@ public class GameCam : MonoBehaviour {
 							networkView.RPC("MoveMyBoat",RPCMode.All,this.myPlayer,Vector3.zero);
 						if (!Player1.gotKey)
 							if (GUI.Button(new Rect(350,275,100,50), "FindTolken"))
-								networkView.RPC("askTolken",RPCMode.All,this.myPlayer);
+								networkView.RPC("askTolken",RPCMode.All,this.myPlayer,Player1.city.hasKey);
 
 						if (GUI.Button(new Rect(350,325,100,50), "Repair"))
 							networkView.RPC("askRepair",RPCMode.All,this.myPlayer);
@@ -371,24 +372,25 @@ public class GameCam : MonoBehaviour {
 		if (_MyPlayerNumber == 2){
 			Player2.currentHealth=Player2.maxHealth;
 		}
-		networkView.RPC( "endTurn",RPCMode.All ,_MyPlayerNumber);
+		//networkView.RPC( "endTurn",RPCMode.All ,_MyPlayerNumber);
 	
 	}
 	[RPC]
-	void askTolken (int _MyPlayerNumber){
-		if (Network.isServer) {
-			networkView.RPC("GetTolken",RPCMode.All, _MyPlayerNumber);
-		}
+	void askTolken (int _MyPlayerNumber ,bool _cityKey)
+	{
+			if (Network.isServer) {
+			networkView.RPC("GetTolken",RPCMode.All, _MyPlayerNumber, _cityKey);
+			}
+
 	}
 	[RPC]
-	void GetTolken(int _MyPlayerNumber){
-		if (_MyPlayerNumber == 1){
-			Player1.gotKey=Player1.city.hasKey;
+	void GetTolken(int _MyPlayerNumber , bool _cityKey){
+		if (_MyPlayerNumber == 1 && _cityKey){
+			Player1.gotKey=true;
 			Player1.city.askCityKeyLoss();
-		}
-		
-		if (_MyPlayerNumber == 2){
-			Player2.gotKey=Player1.city.hasKey;
+		} else
+		if (_MyPlayerNumber == 2 && _cityKey){
+			Player2.gotKey=true;
 			Player2.city.askCityKeyLoss();
 		}
 		networkView.RPC( "endTurn",RPCMode.All ,_MyPlayerNumber);
