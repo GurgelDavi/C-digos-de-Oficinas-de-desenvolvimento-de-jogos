@@ -288,7 +288,10 @@ public class GameCam : MonoBehaviour {
 	void MoveMyBoat(int _MyPLayerNumber , Vector3 _position)
 	{
 		if (_MyPLayerNumber == 1) {
-
+			if ((((Player1.gameObject.transform.localPosition+_position).x>-23.43)&&
+			     (Player1.gameObject.transform.localPosition+_position).x <27.95)&&
+			    (Player1.gameObject.transform.localPosition+_position).z>-31&&
+			    ((Player1.gameObject.transform.localPosition+_position).z<20.5487))
 			this.Player1.gameObject.transform.localPosition +=_position;
 			this.Player1.turnMoves--;
 			if (Player1.turnMoves<=0 || Player1.currentHealth==0){
@@ -298,6 +301,10 @@ public class GameCam : MonoBehaviour {
 		}
 		if (this.Player2!=null)
 		if (_MyPLayerNumber == 2 ) {
+			if ((((Player2.gameObject.transform.localPosition+_position).x>-23.43)&&
+			     (Player2.gameObject.transform.localPosition+_position).x <27.95)&&
+			    (Player2.gameObject.transform.localPosition+_position).z>-31&&
+			    ((Player2.gameObject.transform.localPosition+_position).z<20.5487))
 			this.Player2.myBoat.gameObject.transform.position += _position;
 			this.Player2.turnMoves--;
 
