@@ -142,11 +142,15 @@ public class GameCam : MonoBehaviour {
 					if (Player2!=null){
 						if ((Player2.cityOnRange && myPlayer==2))//||((Player1.cityOnRange&&myPlayer==1)))
 						{
-							Debug.Log("Player 2");
+
+							if (!Player2.gotUpgrade){
 							if (GUI.Button(new Rect(300,225,100,50), "ApplyCard 2 \n Def+2"))
-								networkView.RPC("MoveMyBoat",RPCMode.All,this.myPlayer,Vector3.zero);
+									networkView.RPC("askCard",RPCMode.All,this.myPlayer,2);
 							if (GUI.Button(new Rect(400,225,100,50), "ApplyCard 1\n Atk+2"))
-								networkView.RPC("MoveMyBoat",RPCMode.All,this.myPlayer,Vector3.zero);
+									networkView.RPC("askCard",RPCMode.All,this.myPlayer,1);
+							}
+
+
 							if (!Player2.gotKey && myPlayer==2)
 								if (GUI.Button(new Rect(350,275,100,50), "FindTolken")){
 									networkView.RPC("askTolken",RPCMode.All,this.myPlayer,Player2.city.hasKey);	
@@ -158,10 +162,13 @@ public class GameCam : MonoBehaviour {
 					{
 						//if (GUI.Button(new Rect(400,100,100,25), "BuyCards"))
 						//	networkView.RPC("MoveMyBoat",RPCMode.All,this.myPlayer,Vector3.zero);
+						if (!Player1.gotUpgrade){
 						if (GUI.Button(new Rect(300,225,100,50), "ApplyCard 2 \n Def+2"))
-							networkView.RPC("MoveMyBoat",RPCMode.All,this.myPlayer,Vector3.zero);
+							networkView.RPC("askCard",RPCMode.All,this.myPlayer,2);
 						if (GUI.Button(new Rect(400,225,100,50), "ApplyCard 1\n Atk+2"))
-							networkView.RPC("MoveMyBoat",RPCMode.All,this.myPlayer,Vector3.zero);
+							networkView.RPC("askCard",RPCMode.All,this.myPlayer,1);
+						}
+
 						if (!Player1.gotKey)
 							if (GUI.Button(new Rect(350,275,100,50), "FindTolken"))
 								networkView.RPC("askTolken",RPCMode.All,this.myPlayer,Player1.city.hasKey);
@@ -432,6 +439,34 @@ public class GameCam : MonoBehaviour {
 		}
 
 	}
+	[RPC]
+	void askCard(int _MyPlayerNumber , int cardNumber)
+	{
+		networkView.RPC( "CardApply",RPCMode.All ,_MyPlayerNumber ,cardNumber);
+	}
+
+	[RPC]
+	void CardApply(int _MyPlayerNumber , int _CardNumber){
+		if (_MyPlayerNumber == 1) {
+			if (_CardNumber ==1)	{
+				Player1.firePower=5;
+				
+			}else 
+			{
+				Player1.defense=4;
+			}
+			Player1.gotUpgrade=true;
+		}
+		if (_MyPlayerNumber == 2) {
+			if (_CardNumber==1){
+				Player2.firePower=5;
+			}else
+			{
+				Player2.defense=4;
+			}
+			Player2.gotUpgrade=true;
+		}
+		}
 
 	vesselPlayer Player1 ; 
 	vesselPlayer Player2 ;
