@@ -242,6 +242,7 @@ public class GameCam : MonoBehaviour {
 				tempPirate = (GameObject)Instantiate(Pirate1 , startlocation1.position ,transform.rotation);
 				Player1 = tempPirate.GetComponent<vesselPlayer>();
 				Player1.myBoat = tempPirate;
+				this.movementUpdate=true;
 				//if (myPlayer==1) this.target= Player1.myBoat.transform;
 			}
 			
@@ -251,6 +252,7 @@ public class GameCam : MonoBehaviour {
 				tempPirate = (GameObject)Instantiate(Pirate2 , startlocation2.position ,transform.rotation);
 				Player2 = tempPirate.GetComponent<vesselPlayer>();
 				Player2.myBoat = tempPirate;
+				this.movementUpdate=true;
 			}
 		}
 	}
@@ -293,6 +295,7 @@ public class GameCam : MonoBehaviour {
 			    (Player1.gameObject.transform.localPosition+_position).z>-31&&
 			    ((Player1.gameObject.transform.localPosition+_position).z<20.5487))
 			this.Player1.gameObject.transform.localPosition +=_position;
+			this.movementUpdate=true;
 			this.Player1.turnMoves--;
 			if (Player1.turnMoves<=0 || Player1.currentHealth==0){
 				networkView.RPC( "endTurn",RPCMode.All ,_MyPLayerNumber);
@@ -306,6 +309,7 @@ public class GameCam : MonoBehaviour {
 			    (Player2.gameObject.transform.localPosition+_position).z>-31&&
 			    ((Player2.gameObject.transform.localPosition+_position).z<20.5487))
 			this.Player2.myBoat.gameObject.transform.position += _position;
+			this.movementUpdate=true;
 			this.Player2.turnMoves--;
 
 			if (Player2.turnMoves<=0 || Player2.currentHealth==0){
@@ -523,15 +527,15 @@ public class GameCam : MonoBehaviour {
 
 	//Orbit Script
 	public Transform target;
-	static float distance = 5.0f;
+	public static float distance = 5.0f;
 	private float xSpeed = 120.0f;
 	private float ySpeed = 120.0f;
 	
 	private float yMinLimit = -20f;
 	private float yMaxLimit = 80f;
 	
-	private float distanceMin = 10f;
-	private float distanceMax = 15f;
+	public float distanceMin = 10f;
+	public float distanceMax = 15f;
 
 
 	
@@ -542,6 +546,7 @@ public class GameCam : MonoBehaviour {
 	private float resetTimer =0.0f;
 
 	private bool reseting = true;
+	private bool movementUpdate=false;
 
 	
 	// Use this for initialization
@@ -564,12 +569,14 @@ public class GameCam : MonoBehaviour {
 	
 	void LateUpdate () {
 			if (target){
-			if (reseting && Input.GetMouseButton (0)) {
+			if ((reseting && Input.GetMouseButton (0))||this.movementUpdate) {
 				reseting = false;
 				resetTimer=0.0f;
+				this.movementUpdate = false;
 				//Debug.Log(reseting);
 			}else { //Reset
 				resetTimer += Time.deltaTime;
+
 				if(resetTimer >= resetTime) reseting = true;
 				//Debug.Log(resetTimer);
 			}
